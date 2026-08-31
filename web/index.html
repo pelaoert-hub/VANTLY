@@ -556,6 +556,30 @@
 </div>
 
 <script>
+/* ─── Adaptador de window.storage ──────────────────────────────────────────
+   El prototipo se escribió para el sandbox de artefactos de Claude, que
+   inyectaba un window.storage. Fuera de ahí no existe, así que lo
+   implementamos sobre localStorage respetando la misma interfaz:
+       await storage.get(clave)  ->  {value: string} | null
+       await storage.set(clave, valor)
+   El tercer argumento del original (un booleano) se ignora: aquí todo es
+   local al navegador.
+   Aviso: localStorage ronda los 5 MB. Las fotos se guardan en base64, así
+   que al acumular varias saltará QuotaExceededError. El código que llama ya
+   lo captura y sigue funcionando en memoria durante la sesión.            */
+if (!window.storage) {
+  const PREFIJO = 'vantly:';
+  window.storage = {
+    async get(clave) {
+      const v = localStorage.getItem(PREFIJO + clave);
+      return v === null ? null : { value: v };
+    },
+    async set(clave, valor) {
+      localStorage.setItem(PREFIJO + clave, valor);
+      return { ok: true };
+    },
+  };
+}
 const agents = [
   {
     id:'cazador', icon:'🎯', name:'Cazador de Productos',
@@ -1071,15 +1095,18 @@ async function sendToAgent(agentObj, userText, photo, attachedText){
   contentBlocks.push({ type:'text', text: finalText });
   const systemText = `Eres "${agentObj.name}", agente IA de la oficina virtual de la tienda Vantly (Shopify). Tu función: ${agentObj.desc} Responde en español, de forma breve, concreta y práctica, ejecutando la tarea que te pide el usuario como si fueras ese agente trabajando ahora mismo.`;
 
-  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+  // Al proxy local (server.mjs), que es quien tiene la clave. Nunca
+  // directamente a api.anthropic.com: desde el navegador iría sin
+  // credenciales y además lo bloquearía CORS.
+  const resp = await fetch('/api/messages', {
     method:'POST',
     headers:{ 'Content-Type':'application/json' },
     body: JSON.stringify({
-      model:'claude-sonnet-4-6',
-      max_tokens:1000,
+      model:'claude-opus-5',
+      max_tokens:16000,
       system: systemText,
       messages:[{ role:'user', content: contentBlocks }],
-      tools:[{ type:'web_search_20250305', name:'web_search' }]
+      tools:[{ type:'web_search_20260209', name:'web_search' }]
     })
   });
   const data = await resp.json();

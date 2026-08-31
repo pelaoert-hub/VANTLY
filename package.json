@@ -1,0 +1,13 @@
+{
+  "name": "vantly",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Oficina virtual con agentes de IA para dropshipping en Shopify",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.72.0"
+  }
+}

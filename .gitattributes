@@ -1,0 +1,3 @@
+# No tocar los finales de línea: original/ debe quedar byte a byte igual
+# a lo que descargó el navegador, y web/index.html deriva de ahí.
+* -text

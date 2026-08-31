@@ -1,0 +1,12 @@
+# Secretos — nunca subir
+.env
+.env.local
+*.key
+
+# Dependencias
+node_modules/
+
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store

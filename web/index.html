@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Vantly · Oficina Virtual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0B0E11;
+    --panel: #12161B;
+    --panel-2: #171C22;
+    --line: #232a32;
+    --text: #E8E6DF;
+    --muted: #7C8791;
+    --amber: #E8A33D;
+    --amber-dim: rgba(232,163,61,0.12);
+    --green: #6FCF97;
+    --green-dim: rgba(111,207,151,0.12);
+    --slate: #4B5560;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    display:flex;
+    min-height:100vh;
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar{
+    width: 300px;
+    min-width:260px;
+    background: var(--panel);
+    border-right: 1px solid var(--line);
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+  }
+  .brand{
+    padding: 20px 18px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .brand-name{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:17px;
+    letter-spacing:0.3px;
+  }
+  .brand-sub{
+    color:var(--muted);
+    font-size:11px;
+    margin-top:3px;
+    letter-spacing:0.5px;
+  }
+  .clock{
+    font-size:11px;
+    color:var(--muted);
+    margin-top:10px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .dot-live{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--green);
+    box-shadow:0 0 0 0 rgba(111,207,151,0.6);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(111,207,151,0.5);}
+    70%{box-shadow:0 0 0 6px rgba(111,207,151,0);}
+    100%{box-shadow:0 0 0 0 rgba(111,207,151,0);}
+  }
+
+  .agent-list{
+    flex:1;
+    overflow-y:auto;
+    padding: 10px 10px 10px;
+  }
+  .section-label{
+    font-size:10px;
+    letter-spacing:1.5px;
+    color:var(--slate);
+    padding: 10px 8px 6px;
+    text-transform:uppercase;
+  }
+  .agent{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    padding: 10px 10px;
+    border-radius: 8px;
+    cursor:pointer;
+    border:1px solid transparent;
+    margin-bottom: 3px;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .agent:hover{ background: var(--panel-2); }
+  .agent.active{
+    background: var(--panel-2);
+    border-color: var(--line);
+  }
+  .avatar{
+    width:34px; height:34px;
+    border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:16px;
+    background: #1C2229;
+    flex-shrink:0;
+    border: 1px solid var(--line);
+  }
+  .agent-info{ min-width:0; flex:1; }
+  .agent-name{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:13.5px;
+    font-weight:600;
+    color: var(--text);
+  }
+  .agent-status{
+    font-size:10.5px;
+    margin-top:2px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .status-on{ color: var(--green); }
+  .status-idle{ color: var(--muted); }
+  .status-dot{
+    width:7px;height:7px;border-radius:50%;
+    flex-shrink:0;
+  }
+  .status-dot.on{ background:var(--green); box-shadow:0 0 0 0 rgba(111,207,151,0.6); animation: pulse 2s infinite;}
+  .status-dot.off{ background:var(--slate); }
+
+  .sidebar-foot{
+    padding:14px 18px;
+    border-top:1px solid var(--line);
+    font-size:10.5px;
+    color:var(--slate);
+  }
+
+  /* ===== Main panel ===== */
+  .main{
+    flex:1;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  .main-header{
+    padding: 22px 32px 18px;
+    border-bottom: 1px solid var(--line);
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+  }
+  .header-title{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:22px;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .header-sub{
+    color:var(--muted);
+    font-size:12px;
+    margin-top:6px;
+    max-width:520px;
+    line-height:1.5;
+  }
+  .badge{
+    font-size:10.5px;
+    padding:4px 10px;
+    border-radius:20px;
+    font-family:'JetBrains Mono', monospace;
+    white-space:nowrap;
+  }
+  .badge.on{ background:var(--green-dim); color:var(--green); border:1px solid rgba(111,207,151,0.3); }
+  .badge.off{ background:rgba(75,85,96,0.15); color:var(--muted); border:1px solid var(--line); }
+
+  .stat-row{
+    display:flex;
+    gap:14px;
+    padding: 18px 32px;
+    border-bottom:1px solid var(--line);
+  }
+  .stat{
+    background: var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 16px;
+    flex:1;
+  }
+  .stat-num{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:20px;
+    font-weight:700;
+  }
+  .stat-label{
+    font-size:10px;
+    color:var(--muted);
+    margin-top:4px;
+    letter-spacing:0.4px;
+    text-transform:uppercase;
+  }
+
+  .feed{
+    flex:1;
+    min-height:400px;
+    overflow-y:auto;
+    padding: 20px 32px 32px;
+  }
+  .feed-item{
+    display:flex;
+    gap:14px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .feed-time{
+    color:var(--slate);
+    font-size:12px;
+    width:56px;
+    flex-shrink:0;
+    padding-top:2px;
+  }
+  .feed-marker{
+    width:8px;height:8px;
+    border-radius:50%;
+    margin-top:6px;
+    flex-shrink:0;
+    background: var(--amber);
+  }
+  .feed-text{
+    font-size:15px;
+    line-height:1.7;
+    color:var(--text);
+  }
+  .feed-text b{ color: var(--amber); font-weight:600; }
+
+  /* ===== Fotos compartidas ===== */
+  .photo-bar{
+    padding: 12px 32px;
+    border-bottom: 1px solid var(--line);
+    display:flex;
+    gap:10px;
+    align-items:center;
+    overflow-x:auto;
+  }
+  .photo-bar-label{
+    font-size:10px;
+    color:var(--slate);
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+    flex-shrink:0;
+  }
+  .photo-thumb{
+    width:40px; height:40px;
+    border-radius:6px;
+    object-fit:cover;
+    border:2px solid var(--line);
+    cursor:pointer;
+    flex-shrink:0;
+    opacity:0.75;
+    transition: border-color .15s, opacity .15s;
+  }
+  .photo-thumb:hover{ opacity:1; }
+  .photo-thumb.selected{ border-color: var(--amber); opacity:1; }
+
+  .text-chip{
+    background: var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:6px 12px;
+    font-size:10.5px;
+    color: var(--muted);
+    cursor:pointer;
+    white-space:nowrap;
+    flex-shrink:0;
+    max-width:220px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .text-chip:hover{ color: var(--text); }
+  .text-chip.selected{ border-color: var(--amber); color: var(--amber); }
+
+  /* ===== Cuadro de instrucciones ===== */
+  .instruct-bar{
+    border-top: 1px solid var(--line);
+    padding: 14px 32px 18px;
+    background: var(--panel);
+  }
+  .instruct-preview{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:8px;
+    font-size:11px;
+    color:var(--amber);
+  }
+  .instruct-preview img{
+    width:28px;height:28px;border-radius:5px;object-fit:cover;
+  }
+  .instruct-row{
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .btn-photo{
+    background: var(--panel-2);
+    border:1px solid var(--line);
+    color: var(--text);
+    border-radius:8px;
+    padding:9px 12px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .btn-photo:hover{ border-color:var(--amber); }
+  .instruct-input{
+    flex:1;
+    background: var(--bg);
+    border:1px solid var(--line);
+    color: var(--text);
+    border-radius:8px;
+    padding:10px 12px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    outline:none;
+  }
+  .instruct-input:focus{ border-color: var(--amber); }
+  .btn-send{
+    background: var(--amber);
+    border:none;
+    color:#1A1204;
+    font-weight:700;
+    border-radius:8px;
+    padding:10px 16px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .btn-send:disabled{ opacity:0.5; cursor:default; }
+  .instruct-hint{
+    font-size:10px;
+    color:var(--slate);
+    margin-top:7px;
+  }
+
+  /* ===== Barra de progreso de la cadena ===== */
+  .progress-track{
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--line);
+  }
+  .progress-summary{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-size:11px;
+    color:var(--muted);
+    margin-bottom:9px;
+  }
+  .progress-summary b{
+    font-family:'Space Grotesk', sans-serif;
+    color:var(--text);
+    font-weight:600;
+    font-size:12px;
+  }
+  .progress-bar-outer{
+    height:5px;
+    background: var(--line);
+    border-radius:4px;
+    overflow:hidden;
+    margin-bottom:16px;
+  }
+  .progress-bar-inner{
+    height:100%;
+    background: linear-gradient(90deg, var(--amber), var(--green));
+    border-radius:4px;
+    transition: width 0.5s ease;
+  }
+  .progress-steps-row{
+    display:flex;
+    align-items:flex-start;
+  }
+  .progress-step{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    min-width:78px;
+  }
+  .step-dot{
+    width:26px;height:26px;border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700;
+    background: var(--panel-2);
+    border:2px solid var(--line);
+    color: var(--slate);
+    flex-shrink:0;
+    transition: background .2s, border-color .2s, color .2s;
+  }
+  .progress-step.done .step-dot{ background: var(--green); border-color: var(--green); color:#0B0E11; }
+  .progress-step.error .step-dot{ background: #E8746D; border-color:#E8746D; color:#2A0906; }
+  .progress-step.working .step-dot{
+    background: var(--amber-dim); border-color: var(--amber); color:var(--amber);
+    animation: pulse 1.4s infinite;
+  }
+  .spinner{
+    width:11px;height:11px;border-radius:50%;
+    border:2px solid rgba(232,163,61,0.3);
+    border-top-color: var(--amber);
+    animation: spin 0.75s linear infinite;
+  }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+  .progress-step-label{
+    font-size:10.5px;
+    font-weight:600;
+    color:var(--muted);
+    text-align:center;
+    white-space:nowrap;
+  }
+  .progress-step-state{
+    font-size:9px;
+    letter-spacing:0.3px;
+    text-align:center;
+    white-space:nowrap;
+    color:var(--slate);
+    text-transform:uppercase;
+  }
+  .progress-step.done .progress-step-label,
+  .progress-step.done .progress-step-state{ color: var(--green); }
+  .progress-step.working .progress-step-label,
+  .progress-step.working .progress-step-state{ color: var(--amber); }
+  .progress-step.error .progress-step-label,
+  .progress-step.error .progress-step-state{ color: #E8746D; }
+  .progress-line{
+    flex:1;
+    height:2px;
+    background: var(--line);
+    margin: 12px -2px 0;
+  }
+  .progress-line.done{ background: var(--green); }
+
+  /* ===== Calculadora de márgenes ===== */
+  .calc-box{
+    margin: 0 32px 18px;
+    background: var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:16px;
+  }
+  .calc-title{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    margin-bottom:12px;
+  }
+  .calc-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:10px;
+  }
+  .calc-grid label{
+    font-size:10px;
+    color:var(--muted);
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+  }
+  .calc-grid input{
+    background: var(--bg);
+    border:1px solid var(--line);
+    color:var(--text);
+    border-radius:7px;
+    padding:8px 9px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    outline:none;
+  }
+  .calc-grid input:focus{ border-color:var(--amber); }
+  .calc-result{
+    margin-top:12px;
+    font-size:13px;
+    color: var(--text);
+  }
+  .calc-result b{ color: var(--green); }
+  .calc-result.negative b{ color:#E8746D; }
+
+  ::-webkit-scrollbar{ width:8px; }
+  ::-webkit-scrollbar-thumb{ background:var(--line); border-radius:4px; }
+  ::-webkit-scrollbar-track{ background:transparent; }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="brand">
+    <div class="brand-name">VANTLY · HQ</div>
+    <div class="brand-sub">Oficina virtual</div>
+    <div class="clock"><span class="dot-live"></span><span id="clockText">--:--:--</span></div>
+  </div>
+
+  <div class="agent-list" id="agentList"></div>
+
+  <div class="sidebar-foot" id="sidebarFoot">VANTLY · Shopify</div>
+</div>
+
+<div class="main">
+  <div class="main-header">
+    <div>
+      <div class="header-title"><span id="mainIcon">🎯</span><span id="mainTitle">Cazador de Productos</span></div>
+      <div class="header-sub" id="mainDesc"></div>
+    </div>
+    <div class="badge on" id="mainBadge">● activo</div>
+  </div>
+
+  <div style="padding:10px 32px; font-size:10.5px; color:var(--slate); border-bottom:1px solid var(--line);" id="dataNoteBar"></div>
+
+  <div class="progress-track" id="progressTrack"></div>
+
+  <div class="stat-row" id="statRow"></div>
+
+  <div class="calc-box" id="calcBox" style="display:none;"></div>
+
+  <div class="calc-box" id="deptBox" style="display:none;"></div>
+
+  <div class="photo-bar" id="photoBar" style="display:none;">
+    <span class="photo-bar-label">Fotos compartidas</span>
+  </div>
+
+  <div class="photo-bar" id="textBar" style="display:none;">
+    <span class="photo-bar-label">Textos compartidos</span>
+  </div>
+
+  <div class="feed" id="feed"></div>
+
+  <div class="instruct-bar">
+    <div class="instruct-preview" id="instructPreview" style="display:none;"></div>
+    <div class="instruct-row">
+      <input type="file" id="fileInput" accept="image/*" style="display:none">
+      <button class="btn-photo" id="btnPhoto" type="button">📷 Foto</button>
+      <input type="text" class="instruct-input" id="instructInput" placeholder="Escribe una instrucción para este agente...">
+      <button class="btn-send" id="btnSend" type="button">Enviar</button>
+    </div>
+    <label style="display:flex; align-items:center; gap:6px; margin-top:9px; font-size:10.5px; color:var(--muted); cursor:pointer;">
+      <input type="checkbox" id="autoChainToggle">
+      🔗 Al terminar, pasar automáticamente el trabajo al siguiente agente de la cadena (Cazador → Copys → Anuncios → SecretarIA → Supervisor)
+    </label>
+    <div class="instruct-hint">La foto que subas aquí queda disponible para el resto de agentes (arriba, en "Fotos compartidas").</div>
+  </div>
+</div>
+
+<script>
+const agents = [
+  {
+    id:'cazador', icon:'🎯', name:'Cazador de Productos',
+    desc:'Rastrea Amazon, 1688 y mayoristas B2B para encontrar productos en tendencia y con buen margen. En cada producto que encuentre, incluye SIEMPRE el enlace directo a la página del producto, para que el usuario pueda abrirlo y guardar la foto manualmente.',
+    active:true,
+    statusLine:'Escaneando tendencias generales — Amazon + 1688 + mayoristas',
+    stats:[['3','fuentes cruzadas'],['7','categorías calientes'],['30/07','último escaneo']],
+    feed:[
+      ['—','1688: soportes magnéticos para móvil +142% GMV interanual, subiendo cables de carga rápida y power banks magnéticos'],
+      ['—','Amazon (Movers &amp; Shakers, 24h): juguetes sensoriales/squishies, tableros LED para dibujar, accesorios de fiesta'],
+      ['—','Tendencia de fondo 2026: hogar/organización, belleza y skincare tools, mascotas, gadgets con "factor sorpresa"'],
+      ['—','Categoría actual de la tienda (accesorios móvil/coche) sigue entre las más fuertes del momento']
+    ]
+  },
+  {
+    id:'tienda', icon:'🛠️', name:'Creador de Tienda Online',
+    desc:'Gestiona fichas de producto DENTRO de la tienda Vantly ya existente en Shopify (no crea tiendas nuevas). Sube, edita o corrige productos, colecciones y ajustes del checkout.',
+    active:true,
+    statusLine:'2 productos en borrador, sin publicar',
+    stats:[['2','productos creados'],['0','publicados'],['0','stock cargado']],
+    feed:[
+      ['12:21','Ficha actualizada: <b>Smartphone Car Mount</b> (handle: smartphone-car-mount-1) — estado DRAFT'],
+      ['11:58','Ficha actualizada: <b>Smartphone Car Mount</b> (handle: smartphone-car-mount) — estado DRAFT'],
+      ['00:21','Producto creado — 1 variante, 29,99€, sin inventario asignado'],
+      ['23:58','Producto creado — 1 variante, 29,99€, sin inventario asignado']
+    ]
+  },
+  {
+    id:'copys', icon:'✍️', name:'Creador de Copys Persuasivos',
+    desc:'A partir de la foto del producto (y sus datos si se le pasan: nombre, precio), escribe la descripción de producto para la ficha de Shopify y el copy publicitario corto para anuncios. Deja el texto listo para que el Creador de Anuncios lo use directamente.',
+    active:false,
+    statusLine:'Sin tarea — ambos productos comparten la misma descripción genérica',
+    stats:[['0','copys personalizados'],['2','fichas con texto por defecto'],['—','sin tarea activa']],
+    feed:[]
+  },
+  {
+    id:'anuncios', icon:'🎬', name:'Creador de Anuncios Virales',
+    desc:'A partir de la foto del producto y del copy ya escrito por el Creador de Copys (si está disponible), genera el concepto de anuncio: guion o idea visual, gancho de los 3 primeros segundos, y formato recomendado (Reels/Stories 9:16 para Meta o TikTok, o feed cuadrado). No genera el vídeo/imagen final, deja el concepto listo para producirlo.',
+    active:false,
+    statusLine:'En espera — no hay producto publicado aún',
+    stats:[['0','conceptos generados'],['0','en revisión'],['—','sin tarea activa']],
+    feed:[]
+  },
+  {
+    id:'secretaria', icon:'📋', name:'SecretarIA',
+    desc:'Gestiona pedidos, devoluciones e incidencias de clientes de la tienda.',
+    active:false,
+    statusLine:'Sin pedidos que gestionar',
+    stats:[['0','pedidos totales'],['0','devoluciones'],['0','clientes']],
+    feed:[]
+  },
+  {
+    id:'contable', icon:'📊', name:'Contable',
+    desc:'Controla márgenes, costes por producto y rentabilidad de la tienda. Además lleva la fiscalidad: IVA (modelo 303 y OSS/modelo 369 si se supera el umbral de 10.000€ en ventas UE), IRPF (modelo 130 trimestral), alta de autónomo (epígrafe IAE 665) y avisa de plazos y umbrales importantes. No presenta los modelos ante Hacienda — eso lo hace una gestoría — pero prepara los números y fechas para que no se te pase nada.',
+    active:false,
+    statusLine:'Sin coste de producto registrado — margen no calculable',
+    stats:[['29,99€','precio de venta'],['0€','ventas UE acumuladas (umbral 10.000€)'],['—','próximo modelo 130/303']],
+    feed:[]
+  },
+  {
+    id:'jarvis', icon:'🧠', name:'Supervisor',
+    desc:'Revisa el trabajo del resto de agentes antes de dar el visto bueno: detecta huecos, inconsistencias o alertas (fichas duplicadas, stock a cero, copy que no encaja con el anuncio, etc.). También revisa los números del Contable en cuanto haya ventas reales, para confirmar que los márgenes cuadran.',
+    active:true,
+    statusLine:'2 alertas activas',
+    stats:[['7','agentes en la oficina'],['2','alertas activas'],['30/07','último cruce de datos']],
+    feed:[
+      ['12:21','Alerta: hay 2 fichas duplicadas de <b>Smartphone Car Mount</b> — revisar cuál publicar'],
+      ['12:21','Alerta: 0 unidades en stock en ambos productos — no se puede activar la venta todavía']
+    ]
+  }
+];
+const dataNote = 'Datos reales de la tienda VANTLY (58u9rd-e1.myshopify.com), obtenidos vía Shopify. Snapshot del 30/07/2026 — para actualizar, pide una nueva sincronización.';
+let productData = null; // {cost, shipping, price, margin, marginPct}
+
+async function saveState(){
+  try{
+    await window.storage.set('vantly-agents-state', JSON.stringify(
+      agents.map(a => ({ id:a.id, active:a.active, statusLine:a.statusLine, feed:a.feed }))
+    ), false);
+  }catch(e){ console.warn('Historial no guardado de forma permanente esta vez (seguirá funcionando en esta sesión):', e.message); }
+  try{
+    await window.storage.set('vantly-shared-photos', JSON.stringify(sharedPhotos), false);
+  }catch(e){ console.warn('Fotos no guardadas de forma permanente esta vez (seguirán funcionando en esta sesión):', e.message); }
+  try{
+    await window.storage.set('vantly-shared-texts', JSON.stringify(sharedTexts), false);
+  }catch(e){ console.error('No se pudieron guardar los textos:', e); }
+  try{
+    await window.storage.set('vantly-product-data', JSON.stringify(productData), false);
+  }catch(e){ console.warn('No se pudieron guardar los datos de producto:', e.message); }
+}
+
+async function loadState(){
+  try{
+    const res = await window.storage.get('vantly-agents-state', false);
+    if(res && res.value){
+      const saved = JSON.parse(res.value);
+      saved.forEach(s=>{
+        const a = agents.find(x=>x.id===s.id);
+        if(a){ a.active = s.active; a.statusLine = s.statusLine; a.feed = s.feed; }
+      });
+    }
+  }catch(e){ /* no hay estado guardado todavía */ }
+  try{
+    const res = await window.storage.get('vantly-shared-photos', false);
+    if(res && res.value){ sharedPhotos = JSON.parse(res.value); }
+  }catch(e){ /* no hay fotos guardadas todavía */ }
+  try{
+    const res = await window.storage.get('vantly-shared-texts', false);
+    if(res && res.value){ sharedTexts = JSON.parse(res.value); }
+  }catch(e){ /* no hay textos guardados todavía */ }
+  try{
+    const res = await window.storage.get('vantly-product-data', false);
+    if(res && res.value){ productData = JSON.parse(res.value); }
+  }catch(e){ /* no hay datos de producto guardados todavía */ }
+}
+
+let currentId = 'cazador';
+
+function renderSidebar(){
+  const list = document.getElementById('agentList');
+  list.innerHTML = '<div class="section-label">Tu equipo IA</div>' + agents.map(a => `
+    <div class="agent ${a.id===currentId?'active':''}" data-id="${a.id}">
+      <div class="avatar">${a.icon}</div>
+      <div class="agent-info">
+        <div class="agent-name">${a.name}</div>
+        <div class="agent-status ${a.active?'status-on':'status-idle'}">${a.statusLine}</div>
+      </div>
+      <div class="status-dot ${a.active?'on':'off'}"></div>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.agent').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      currentId = el.dataset.id;
+      renderSidebar();
+      renderMain();
+    });
+  });
+}
+
+const pipelineLabels = { cazador:'Cazador', copys:'Copys', anuncios:'Anuncios', secretaria:'SecretarIA', jarvis:'Supervisor' };
+
+// Estado real de cada paso de la cadena: 'pending' | 'working' | 'done' | 'error'
+const chainState = {};
+function initChainState(){
+  pipelineOrder.forEach(id=>{
+    if(!(id in chainState)){
+      const a = agents.find(x=>x.id===id);
+      chainState[id] = (a && a.feed.length > 0) ? 'done' : 'pending';
+    }
+  });
+}
+
+const stateLabel = { pending:'Pendiente', working:'Trabajando…', done:'Hecho', error:'Error' };
+const stateIcon  = { pending:'', working:'<span class="spinner"></span>', done:'✓', error:'!' };
+
+function renderProgress(){
+  const track = document.getElementById('progressTrack');
+  const doneCount = pipelineOrder.filter(id=>chainState[id]==='done').length;
+  const pct = Math.round((doneCount / pipelineOrder.length) * 100);
+
+  const stepsHtml = pipelineOrder.map((id, i)=>{
+    const a = agents.find(x=>x.id===id);
+    const st = chainState[id] || 'pending';
+    const step = `
+      <div class="progress-step ${st}">
+        <div class="step-dot">${stateIcon[st]}</div>
+        <div class="progress-step-label">${a.icon} ${pipelineLabels[id]}</div>
+        <div class="progress-step-state">${stateLabel[st]}</div>
+      </div>`;
+    const line = i < pipelineOrder.length - 1 ? `<div class="progress-line ${st==='done' ? 'done' : ''}"></div>` : '';
+    return step + line;
+  }).join('');
+
+  track.innerHTML = `
+    <div class="progress-summary"><b>Cadena de producción</b><span>${doneCount}/${pipelineOrder.length} pasos completados · ${pct}%</span></div>
+    <div class="progress-bar-outer"><div class="progress-bar-inner" style="width:${pct}%"></div></div>
+    <div class="progress-steps-row">${stepsHtml}</div>
+  `;
+}
+
+function updateCalcResult(){
+  const cost = parseFloat(document.getElementById('calcCost').value) || 0;
+  const ship = parseFloat(document.getElementById('calcShip').value) || 0;
+  const price = parseFloat(document.getElementById('calcPrice').value) || 0;
+  const margin = price - cost - ship;
+  const marginPct = price > 0 ? (margin / price * 100) : 0;
+  const box = document.getElementById('calcResult');
+  box.className = 'calc-result' + (margin < 0 ? ' negative' : '');
+  box.innerHTML = `Margen: <b>${margin.toFixed(2)}€</b> · <b>${marginPct.toFixed(1)}%</b> sobre el precio de venta`;
+}
+
+function trimFeed(a){
+  if(a.feed.length > 15) a.feed.length = 15;
+}
+
+function saveProductData(){
+  const cost = parseFloat(document.getElementById('calcCost').value) || 0;
+  const ship = parseFloat(document.getElementById('calcShip').value) || 0;
+  const price = parseFloat(document.getElementById('calcPrice').value) || 0;
+  const margin = price - cost - ship;
+  const marginPct = price > 0 ? (margin / price * 100) : 0;
+  productData = { cost, shipping: ship, price, margin, marginPct };
+
+  const summary = `Datos del producto — Coste: ${cost.toFixed(2)}€ · Envío: ${ship.toFixed(2)}€ · Precio de venta: ${price.toFixed(2)}€ · Margen: ${margin.toFixed(2)}€ (${marginPct.toFixed(1)}%)`;
+  sharedTexts.push({ label:'Cazador · datos de producto', content: summary, fromAgent:'Cazador de Productos' });
+  if(sharedTexts.length > 10) sharedTexts.shift();
+
+  const a = agents.find(x=>x.id==='cazador');
+  a.active = true;
+  a.statusLine = 'Datos de producto guardados y listos para pasar';
+  a.feed.unshift(['ahora', `<b>Calculadora:</b><br>${summary}`]);
+  trimFeed(a);
+
+  renderSidebar();
+  renderMain();
+  renderTextBar();
+  saveState();
+}
+
+function renderCalc(){
+  const box = document.getElementById('calcBox');
+  if(currentId !== 'cazador'){ box.style.display = 'none'; box.innerHTML=''; return; }
+  box.style.display = 'block';
+  box.innerHTML = `
+    <div class="calc-title" id="calcToggle" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+      <span>🧮 Calculadora de margen</span>
+      <span id="calcArrow" style="font-size:11px; color:var(--muted);">▼ ocultar</span>
+    </div>
+    <div id="calcContent">
+      <div class="calc-grid">
+        <label>Coste producto (€)<input type="number" id="calcCost" step="0.01" value="${productData ? productData.cost : ''}"></label>
+        <label>Coste envío (€)<input type="number" id="calcShip" step="0.01" value="${productData ? productData.shipping : ''}"></label>
+        <label>Precio de venta (€)<input type="number" id="calcPrice" step="0.01" value="${productData ? productData.price : ''}"></label>
+      </div>
+      <div class="calc-result" id="calcResult">Margen: —</div>
+      <button class="btn-send" id="btnSaveCalc" style="margin-top:10px;">Guardar y pasar al siguiente agente</button>
+    </div>
+  `;
+  ['calcCost','calcShip','calcPrice'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', updateCalcResult);
+  });
+  updateCalcResult();
+  document.getElementById('btnSaveCalc').addEventListener('click', saveProductData);
+  document.getElementById('calcToggle').addEventListener('click', ()=>{
+    const content = document.getElementById('calcContent');
+    const arrow = document.getElementById('calcArrow');
+    const hidden = content.style.display === 'none';
+    content.style.display = hidden ? 'block' : 'none';
+    arrow.textContent = hidden ? '▼ ocultar' : '▶ mostrar';
+  });
+}
+
+const vantlyDepartments = [
+  "Electrónica","Móviles y accesorios","Tablets y accesorios","PC y accesorios",
+  "Hogar","Belleza y cuidado de la piel","Artículos para bebés","Niños",
+  "Mujer","Hombre","Bisutería","Manicura y pedicura"
+];
+
+function renderDeptBox(){
+  const box = document.getElementById('deptBox');
+  if(currentId !== 'cazador'){ box.style.display = 'none'; box.innerHTML=''; return; }
+  box.style.display = 'block';
+  box.innerHTML = `
+    <div class="calc-title" id="deptToggle" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+      <span>🔎 Búsqueda rápida por departamento</span>
+      <span id="deptArrow" style="font-size:11px; color:var(--muted);">▶ mostrar</span>
+    </div>
+    <div id="deptContent" style="display:none; margin-top:10px;">
+      <div style="font-size:11px; color:var(--muted); margin-bottom:10px;">Un clic y busca tendencias en los 12 departamentos de Vantly, sin que tengas que escribirlos.</div>
+      <button class="btn-send" id="btnAllDepts" type="button">Buscar en los 12 departamentos</button>
+    </div>
+  `;
+  document.getElementById('btnAllDepts').addEventListener('click', ()=>{
+    const input = document.getElementById('instructInput');
+    input.value = `Busca un producto en tendencia y con buen margen para cada uno de estos departamentos de mi tienda Vantly: ${vantlyDepartments.join(", ")}. Para cada uno dame: nombre del producto, por qué está en tendencia, y el enlace directo a la página del producto.`;
+    input.focus();
+  });
+  document.getElementById('deptToggle').addEventListener('click', ()=>{
+    const content = document.getElementById('deptContent');
+    const arrow = document.getElementById('deptArrow');
+    const hidden = content.style.display === 'none';
+    content.style.display = hidden ? 'block' : 'none';
+    arrow.textContent = hidden ? '▼ ocultar' : '▶ mostrar';
+  });
+}
+
+function renderMain(){
+  const a = agents.find(x=>x.id===currentId);
+  document.getElementById('mainIcon').textContent = a.icon;
+  document.getElementById('mainTitle').textContent = a.name;
+  document.getElementById('mainDesc').textContent = a.desc;
+  const badge = document.getElementById('mainBadge');
+  badge.textContent = a.active ? '● activo' : '○ en espera';
+  badge.className = 'badge ' + (a.active ? 'on' : 'off');
+
+  document.getElementById('statRow').innerHTML = a.stats.map(([num,label])=>`
+    <div class="stat">
+      <div class="stat-num">${num}</div>
+      <div class="stat-label">${label}</div>
+    </div>
+  `).join('');
+
+  const feed = document.getElementById('feed');
+  if(a.feed.length===0){
+    feed.innerHTML = `<div style="color:var(--muted); font-size:12.5px; padding-top:8px;">Sin actividad reciente. Este agente arrancará en cuanto reciba la siguiente tarea.</div>`;
+  } else {
+    feed.innerHTML = a.feed.map(([time,text])=>`
+      <div class="feed-item">
+        <div class="feed-time">${time}</div>
+        <div class="feed-marker"></div>
+        <div class="feed-text">${text}</div>
+      </div>
+    `).join('');
+  }
+
+  renderProgress();
+  renderCalc();
+  renderDeptBox();
+}
+
+// ===== Fotos compartidas entre agentes =====
+let sharedPhotos = []; // {dataUrl, base64, mediaType, fromAgent}
+let pendingPhotoIndex = null; // índice de la foto seleccionada para el próximo mensaje
+
+// ===== Textos compartidos entre agentes (ej: copy del Creador de Copys) =====
+let sharedTexts = []; // {label, content, fromAgent}
+let pendingTextIndex = null;
+
+function renderTextBar(){
+  const bar = document.getElementById('textBar');
+  if(sharedTexts.length === 0){ bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+  bar.innerHTML = '<span class="photo-bar-label">Textos compartidos</span>' +
+    sharedTexts.map((t,i)=>`<span class="text-chip ${i===pendingTextIndex?'selected':''}" data-i="${i}" title="${t.content.replace(/"/g,'&quot;')}">${t.label}</span>`).join('');
+  bar.querySelectorAll('.text-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      const i = parseInt(chip.dataset.i);
+      pendingTextIndex = (pendingTextIndex === i) ? null : i;
+      renderTextBar();
+      renderInstructPreview();
+    });
+  });
+}
+
+function renderPhotoBar(){
+  const bar = document.getElementById('photoBar');
+  if(sharedPhotos.length === 0){ bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+  bar.innerHTML = '<span class="photo-bar-label">Fotos compartidas</span>' +
+    sharedPhotos.map((p,i)=>`<img class="photo-thumb ${i===pendingPhotoIndex?'selected':''}" src="${photoDataUrl(p)}" data-i="${i}" title="Subida por ${p.fromAgent}">`).join('');
+  bar.querySelectorAll('.photo-thumb').forEach(img=>{
+    img.addEventListener('click', ()=>{
+      const i = parseInt(img.dataset.i);
+      pendingPhotoIndex = (pendingPhotoIndex === i) ? null : i;
+      renderPhotoBar();
+      renderInstructPreview();
+    });
+  });
+}
+
+function renderInstructPreview(){
+  const box = document.getElementById('instructPreview');
+  const parts = [];
+  if(pendingPhotoIndex !== null){
+    const p = sharedPhotos[pendingPhotoIndex];
+    parts.push(`<img src="${photoDataUrl(p)}"> foto de ${p.fromAgent}`);
+  }
+  if(pendingTextIndex !== null){
+    const t = sharedTexts[pendingTextIndex];
+    parts.push(`📄 texto de ${t.fromAgent}`);
+  }
+  if(parts.length === 0){ box.style.display='none'; box.innerHTML=''; return; }
+  box.style.display = 'flex';
+  box.innerHTML = 'Adjuntando: ' + parts.join(' · ');
+}
+
+function photoDataUrl(p){ return 'data:' + p.mediaType + ';base64,' + p.base64; }
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, ch => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[ch]));
+}
+
+function fileToBase64(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const maxDim = 700;
+        let w = img.width, h = img.height;
+        if(w > maxDim || h > maxDim){
+          if(w > h){ h = Math.round(h * (maxDim / w)); w = maxDim; }
+          else{ w = Math.round(w * (maxDim / h)); h = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+        resolve({ base64: dataUrl.split(',')[1], mediaType: 'image/jpeg' });
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ===== Cadena automática entre agentes =====
+const pipelineOrder = ['cazador','copys','anuncios','secretaria','jarvis'];
+const defaultInstructions = {
+  copys: 'Escribe la descripción de producto para la ficha de Shopify y un copy publicitario corto, basándote en la foto y en la información del producto que te paso.',
+  anuncios: 'Genera el concepto de anuncio: gancho de los 3 primeros segundos, guion breve y formato recomendado (Reels/Stories 9:16), usando la foto y el copy ya escrito.',
+  secretaria: 'Este producto ya tiene anuncio listo para publicarse. Prepara el protocolo de atención al cliente: cómo vas a responder dudas de envío, gestionar pedidos y posibles devoluciones en cuanto empiecen a entrar.',
+  jarvis: 'Revisa todo lo que han hecho el Cazador, Copys, Anuncios y SecretarIA para este producto. Señala cualquier inconsistencia, hueco o alerta antes de dar el visto bueno para publicar.'
+};
+
+async function runChainStep(agentId, photo, contextList){
+  const a = agents.find(x=>x.id===agentId);
+  currentId = agentId;
+  chainState[agentId] = 'working';
+  renderSidebar();
+  renderMain();
+  a.statusLine = 'Trabajando automáticamente (encadenado)...';
+  renderSidebar();
+
+  try{
+    const reply = await sendToAgent(a, defaultInstructions[agentId], photo, contextList);
+    a.active = true;
+    a.statusLine = 'Última instrucción atendida ahora mismo (encadenado)';
+    chainState[agentId] = 'done';
+    a.feed.unshift(['ahora', `<b>Cadena automática:</b> ${escapeHtml(defaultInstructions[agentId])}<br><br>${escapeHtml(reply).replace(/\n/g,'<br>')}`]);
+    trimFeed(a);
+
+    const newText = { label: `${a.name} · ${new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}`, content: reply, fromAgent: a.name };
+    sharedTexts.push(newText);
+    if(sharedTexts.length > 10) sharedTexts.shift();
+
+    renderSidebar();
+    renderMain();
+    renderTextBar();
+    saveState();
+
+    return newText;
+  } catch(err){
+    chainState[agentId] = 'error';
+    a.statusLine = 'Error en la cadena automática';
+    a.feed.unshift(['ahora', `Error contactando con el agente: ${escapeHtml(err.message)}`]);
+    renderSidebar();
+    renderMain();
+    saveState();
+    throw err;
+  }
+}
+
+async function runChainFrom(agentId, photo, startingText){
+  const idx = pipelineOrder.indexOf(agentId);
+  chainState[agentId] = 'done';
+  for(let i = idx + 1; i < pipelineOrder.length; i++){
+    chainState[pipelineOrder[i]] = 'pending';
+  }
+  renderMain();
+  // Acumula el texto de TODOS los agentes anteriores de la cadena,
+  // para que cada paso (y especialmente el Supervisor al final) tenga
+  // visibilidad completa del trabajo hecho hasta el momento, no solo
+  // del paso inmediatamente anterior.
+  const contextList = [startingText];
+  for(let i = idx + 1; i < pipelineOrder.length; i++){
+    const nextId = pipelineOrder[i];
+    const newText = await runChainStep(nextId, photo, contextList.slice());
+    contextList.push(newText);
+  }
+}
+
+document.getElementById('btnPhoto').addEventListener('click', ()=>{
+  document.getElementById('fileInput').click();
+});
+
+document.getElementById('fileInput').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const { base64, mediaType } = await fileToBase64(file);
+  const a = agents.find(x=>x.id===currentId);
+  sharedPhotos.push({ base64, mediaType, fromAgent: a.name });
+  if(sharedPhotos.length > 6) sharedPhotos.shift();
+  pendingPhotoIndex = sharedPhotos.length - 1;
+  renderPhotoBar();
+  renderInstructPreview();
+  saveState();
+  e.target.value = '';
+});
+
+async function sendToAgent(agentObj, userText, photo, attachedText){
+  const contentBlocks = [];
+  if(photo){
+    contentBlocks.push({ type:'image', source:{ type:'base64', media_type: photo.mediaType, data: photo.base64 } });
+  }
+  let finalText = userText;
+  if(Array.isArray(attachedText)){
+    if(attachedText.length){
+      const ctx = attachedText.map(t=>`Contexto de ${t.fromAgent}:\n"${t.content}"`).join('\n\n');
+      finalText = `${ctx}\n\nInstrucción: ${userText}`;
+    }
+  } else if(attachedText){
+    finalText = `Contexto de ${attachedText.fromAgent}:\n"${attachedText.content}"\n\nInstrucción: ${userText}`;
+  }
+  if(productData){
+    finalText = `Datos del producto — coste: ${productData.cost}€, envío: ${productData.shipping}€, precio de venta: ${productData.price}€, margen: ${productData.margin.toFixed(2)}€ (${productData.marginPct.toFixed(1)}%).\n\n${finalText}`;
+  }
+  contentBlocks.push({ type:'text', text: finalText });
+  const systemText = `Eres "${agentObj.name}", agente IA de la oficina virtual de la tienda Vantly (Shopify). Tu función: ${agentObj.desc} Responde en español, de forma breve, concreta y práctica, ejecutando la tarea que te pide el usuario como si fueras ese agente trabajando ahora mismo.`;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json' },
+    body: JSON.stringify({
+      model:'claude-sonnet-4-6',
+      max_tokens:1000,
+      system: systemText,
+      messages:[{ role:'user', content: contentBlocks }],
+      tools:[{ type:'web_search_20250305', name:'web_search' }]
+    })
+  });
+  const data = await resp.json();
+  if(!resp.ok){
+    throw new Error(data?.error?.message || `Error ${resp.status} al contactar con el agente`);
+  }
+  const textOut = (data.content || []).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+  return textOut || 'El agente no ha devuelto respuesta.';
+}
+
+document.getElementById('btnSend').addEventListener('click', async ()=>{
+  const input = document.getElementById('instructInput');
+  const text = input.value.trim();
+  if(!text) return;
+
+  const btn = document.getElementById('btnSend');
+  btn.disabled = true;
+  btn.textContent = 'Pensando...';
+
+  const a = agents.find(x=>x.id===currentId);
+  const photo = pendingPhotoIndex !== null ? sharedPhotos[pendingPhotoIndex] : null;
+  const attachedText = pendingTextIndex !== null ? sharedTexts[pendingTextIndex] : null;
+
+  const isPipelineAgent = pipelineOrder.includes(a.id);
+  if(isPipelineAgent){ chainState[a.id] = 'working'; renderMain(); }
+
+  try{
+    const reply = await sendToAgent(a, text, photo, attachedText);
+    a.active = true;
+    a.statusLine = 'Última instrucción atendida ahora mismo';
+    if(isPipelineAgent){ chainState[a.id] = 'done'; }
+    const tags = [photo ? 'con foto' : null, attachedText ? `con texto de ${attachedText.fromAgent}` : null].filter(Boolean).join(', ');
+    a.feed.unshift(['ahora', `<b>Tú:</b> ${escapeHtml(text)}${tags ? ' ('+tags+')' : ''}<br><br>${escapeHtml(reply).replace(/\n/g,'<br>')}`]);
+    trimFeed(a);
+
+    // Guarda la respuesta como texto reutilizable para el siguiente agente en la cadena
+    const newText = {
+      label: `${a.name} · ${new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}`,
+      content: reply,
+      fromAgent: a.name
+    };
+    sharedTexts.push(newText);
+    if(sharedTexts.length > 10) sharedTexts.shift();
+
+    input.value = '';
+    pendingPhotoIndex = null;
+    pendingTextIndex = null;
+    renderPhotoBar();
+    renderTextBar();
+    renderInstructPreview();
+    renderSidebar();
+    renderMain();
+    saveState();
+
+    if(document.getElementById('autoChainToggle').checked && isPipelineAgent){
+      btn.textContent = 'Encadenando...';
+      try{
+        await runChainFrom(a.id, photo, newText);
+      }catch(chainErr){
+        // El error ya ha quedado registrado en el agente correcto dentro de runChainStep.
+        console.warn('Cadena automática interrumpida:', chainErr.message);
+      }
+    }
+  } catch(err){
+    if(isPipelineAgent){ chainState[a.id] = 'error'; }
+    a.feed.unshift(['ahora', `Error contactando con el agente: ${escapeHtml(err.message)}`]);
+    renderMain();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Enviar';
+  }
+});
+
+document.getElementById('instructInput').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') document.getElementById('btnSend').click();
+});
+
+function tickClock(){
+  document.getElementById('clockText').textContent = new Date().toLocaleTimeString('es-ES');
+}
+setInterval(tickClock, 1000);
+tickClock();
+
+document.getElementById('dataNoteBar').textContent = dataNote;
+loadState().then(()=>{
+  initChainState();
+  renderSidebar();
+  renderMain();
+  renderPhotoBar();
+  renderTextBar();
+});
+</script>
+</body>
+</html>
